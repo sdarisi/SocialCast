@@ -129,31 +129,33 @@ public class FacebookFeedFragment extends SocialFeedFragment implements GraphReq
     @Override
     public void onCompleted(GraphResponse graphResponse) {
         Log.d(TAG, "response URL: " + graphResponse.getConnection().getURL());
-        Log.d(TAG, "FB graph response callback: " + graphResponse.getJSONObject().toString());
         try {
             if (graphResponse.getConnection().getResponseCode() == 200) {
                 JSONObject responseData = graphResponse.getJSONObject();
-                JSONArray media = responseData.getJSONArray("data");
-                if (media.length() > 0) {
-                    ArrayList<MediaListItem> listItems = new ArrayList<MediaListItem>();
-                    for (int i =0; i < media.length(); i++) {
-                        try {
-                            JSONObject dataItem = media.getJSONObject(i);
-                            MediaListItem item = new MediaListItem();
-                            item.id = dataItem.getString("id");
-                            item.createdTime = dataItem.getString("created_time");
-                            item.source = dataItem.getString("source");
-                            item.title = dataItem.getString("name");
-                            listItems.add(item);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                if (responseData != null) {
+                    Log.d(TAG, "FB graph response callback: " + responseData.toString());
+                    JSONArray media = responseData.getJSONArray("data");
+                    if (media.length() > 0) {
+                        ArrayList<MediaListItem> listItems = new ArrayList<MediaListItem>();
+                        for (int i = 0; i < media.length(); i++) {
+                            try {
+                                JSONObject dataItem = media.getJSONObject(i);
+                                MediaListItem item = new MediaListItem();
+                                item.id = dataItem.getString("id");
+                                item.createdTime = dataItem.getString("created_time");
+                                item.source = dataItem.getString("source");
+                                item.title = dataItem.getString("name");
+                                listItems.add(item);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                    feedListAdapter.setMediaList(listItems);
-                    feedListAdapter.notifyDataSetChanged();
-                    emptyText.setVisibility(View.GONE);
-                    feedList.setVisibility(View.VISIBLE);
+                        feedListAdapter.setMediaList(listItems);
+                        feedListAdapter.notifyDataSetChanged();
+                        emptyText.setVisibility(View.GONE);
+                        feedList.setVisibility(View.VISIBLE);
 
+                    }
                 }
             }
         } catch (IOException e) {

@@ -11,7 +11,6 @@ public class MediaListItem {
     public String createdTime;
     public String title;
     public String source; // Picture source URL
-    public String authorName;
-    public String authorId;
-    public List<MediaImageSubItem> images; // List of sub
+    public String mediaType;
+    public MediaItemAuthor author;
 }

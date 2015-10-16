@@ -74,6 +74,9 @@ public class FeedListAdapter extends BaseAdapter implements View.OnClickListener
         holder.mediaListItem = item;
         holder.userName.setText(item.title);
         holder.image.setImageURI(Uri.parse(item.source));
+        if (item.author != null) {
+            holder.avatarImage.setImageURI(Uri.parse(item.author.profilePictureUrl));
+        }
 
         return convertView;
     }
@@ -104,7 +107,7 @@ public class FeedListAdapter extends BaseAdapter implements View.OnClickListener
 
     class ViewHolder {
         @Bind(R.id.avatar_image)
-        ImageView avatarImage;
+        SimpleDraweeView avatarImage;
         @Bind(R.id.user_name)
         TextView userName;
         @Bind(R.id.image_view)

@@ -2,6 +2,8 @@
     <string name="app_name">SocialCast</string>
     <string name="cast_app_id">4647A14B</string>
     <string name="facebook_app_id">1460044497627056</string>
+    <string name="instagram_client_id">6fc843cb0ce94fcaae550587be350a74</string>
+    <string name="instagram_redirect_uri">socialcastapp://oauth/callback/instagram</string>
 
     <string name="not_logged_in">Please login!</string>
     <string name="action_settings">Settings</string>

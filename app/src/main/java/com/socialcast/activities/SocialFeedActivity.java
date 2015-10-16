@@ -1,5 +1,9 @@
 package com.socialcast.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,6 +15,7 @@ import android.support.v7.app.MediaRouteActionProvider;
 import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,10 +79,19 @@ public class SocialFeedActivity extends AppCompatActivity {
         adapter = new TabPagerAdapter(getSupportFragmentManager(), this);
         pager.setAdapter(adapter);
         tabLayout.setupWithViewPager(pager);
+
+        isLaunchedFromCustomUri();
+
 //        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) pager.getLayoutParams();
 //        layoutParams.topMargin = 2 * this.getResources().getDimensionPixelSize(R.dimen.toolbar_height);
 //        tabLayout.setLayoutParams(layoutParams);
 
+    }
+
+    @Override
+    public void onNewIntent(Intent newIntent) {
+        setIntent(newIntent);
+        isLaunchedFromCustomUri();
     }
 
     @Override
@@ -110,5 +124,29 @@ public class SocialFeedActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void isLaunchedFromCustomUri() {
+        Intent intent = getIntent();
+        Uri openUri = intent.getData();
+        if (openUri != null) {
+            Log.d("socialcast", "custom url: " + openUri.toString());
+            if (openUri.getScheme().startsWith("socialcastapp")) {
+                if (openUri.getPath().contains("instagram")) { // Instagram authorization call back
+                    String tokenFragment = openUri.getFragment();
+                    // fragment is of the form access_token={accesstoken}
+                    if (tokenFragment.startsWith("access_token")) {
+                        int equalityIndex = tokenFragment.indexOf('=');
+                        if (equalityIndex > 0) {
+                            String token = tokenFragment.substring(equalityIndex+1, tokenFragment.length());
+                            Log.d("socialcast", "instagram token: " + token);
+                            SharedPreferences preferences = getSharedPreferences("com.socialcast", Context.MODE_PRIVATE);
+                            preferences.edit().putString(InstagramFeedFragment.INSTAGRAM_TOKEN_PREFS_NAME, token).apply();
+                            pager.setCurrentItem(TabPagerAdapter.POSITION_INSTAGRAM);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
