@@ -43,9 +43,17 @@ public class FeedListAdapter extends BaseAdapter implements View.OnClickListener
         notifyDataSetChanged();
     }
 
+    public List<MediaListItem> getMediaList() {
+        return mediaList;
+    }
+
     @Override
     public int getCount() {
-        return mediaList.size();
+        if (mediaList != null) {
+            return mediaList.size();
+        } else {
+            return 0;
+        }
     }
 
     @Override

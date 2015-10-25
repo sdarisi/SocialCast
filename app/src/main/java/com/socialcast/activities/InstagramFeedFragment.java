@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.socialcast.R;
 import com.socialcast.modals.MediaItemAuthor;
 import com.socialcast.modals.MediaListItem;
+import com.socialcast.ui.EndlessScrollListener;
 import com.socialcast.utils.InstagramService;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.OnClick;
 
@@ -39,13 +41,14 @@ public class InstagramFeedFragment extends SocialFeedFragment {
     private static final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
 
     private String nextMaxId; // max id of the media item - used for pagination
+    private String token;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
-        String token = getActivity().getSharedPreferences("com.socialcast", Context.MODE_PRIVATE).getString(INSTAGRAM_TOKEN_PREFS_NAME, null);
+        token = getActivity().getSharedPreferences("com.socialcast", Context.MODE_PRIVATE).getString(INSTAGRAM_TOKEN_PREFS_NAME, null);
 
         if (token == null) {
             feedList.setVisibility(View.GONE);
@@ -79,7 +82,7 @@ public class InstagramFeedFragment extends SocialFeedFragment {
      */
     private void getFeed(String accessToken, int count, String minId, String maxId) {
         try {
-            String url = new URI("https", "api.instagram.com", "/v1/users/self/feed", "access_token="+accessToken, null).toString();
+            String url = new URI("https", "api.instagram.com", "/v1/users/self/feed", "access_token="+accessToken+"&count="+count+"&max_id="+maxId, null).toString();
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(url).build();
             client.newCall(request).enqueue(new Callback() {
@@ -127,11 +130,25 @@ public class InstagramFeedFragment extends SocialFeedFragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        ArrayList<MediaListItem> items = listItems;
+                                        List<MediaListItem> items = feedListAdapter.getMediaList();
+                                        if (items == null) {
+                                            items = listItems;
+                                            emptyText.setVisibility(View.GONE);
+                                            feedList.setVisibility(View.VISIBLE);
+                                            feedList.setOnScrollListener(new EndlessScrollListener() {
+                                                @Override
+                                                public boolean onLoadMore(int page, int totalItemsCount) {
+                                                    Log.d(TAG, "loading more from instagram for page: " + page);
+                                                    getFeed(token, 30, null, nextMaxId);
+                                                    return true;
+                                                }
+                                            });
+                                        } else {
+                                            items.addAll(listItems);
+                                        }
                                         feedListAdapter.setMediaList(items);
                                         feedListAdapter.notifyDataSetChanged();
-                                        emptyText.setVisibility(View.GONE);
-                                        feedList.setVisibility(View.VISIBLE);
+
                                     }
                                 });
                             }

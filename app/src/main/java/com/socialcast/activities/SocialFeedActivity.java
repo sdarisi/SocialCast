@@ -78,6 +78,7 @@ public class SocialFeedActivity extends AppCompatActivity {
 
         adapter = new TabPagerAdapter(getSupportFragmentManager(), this);
         pager.setAdapter(adapter);
+        pager.setOffscreenPageLimit(adapter.getCount());
         tabLayout.setupWithViewPager(pager);
 
         isLaunchedFromCustomUri();

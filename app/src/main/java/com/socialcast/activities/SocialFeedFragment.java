@@ -55,7 +55,7 @@ public class SocialFeedFragment extends Fragment {
         ButterKnife.bind(this, v);
 
         feedListAdapter = new FeedListAdapter(getActivity());
-        feedListAdapter.setMediaList(buildCastMedia());
+//        feedListAdapter.setMediaList(buildCastMedia());
         feedList.setAdapter(feedListAdapter);
 
         View headerView = new View(getActivity());
