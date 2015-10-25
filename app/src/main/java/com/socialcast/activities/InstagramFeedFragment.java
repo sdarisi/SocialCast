@@ -92,6 +92,7 @@ public class InstagramFeedFragment extends SocialFeedFragment {
                 public void onResponse(Response response) throws IOException {
                     if (response.isSuccessful()) {
                         try {
+                            Log.d(TAG, "instagram req url: " + response.request().urlString());
                             JSONObject responseJson = new JSONObject(response.body().string());
                             Log.d(TAG, "instagram feed body: " + responseJson);
                             nextMaxId = ((JSONObject)responseJson.get("pagination")).getString("next_max_id");
@@ -106,8 +107,12 @@ public class InstagramFeedFragment extends SocialFeedFragment {
                                         item.createdTime = dataItem.getString("created_time");
                                         item.mediaType = dataItem.getString("type");
                                         // TODO figure out a better modal extraction
-                                        item.source = ((JSONObject)((JSONObject)dataItem.get("images")).get("standard_resolution")).getString("url");
-                                        item.title = ((JSONObject)dataItem.get("caption")).getString("text");
+                                        item.source = dataItem.getJSONObject("images").getJSONObject("standard_resolution").getString("url");
+                                        try {
+                                            item.title = dataItem.getJSONObject("caption").getString("text");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                         JSONObject user = (JSONObject)dataItem.get("user");
                                         item.author = new MediaItemAuthor();
                                         item.author.displayName = user.getString("full_name");
